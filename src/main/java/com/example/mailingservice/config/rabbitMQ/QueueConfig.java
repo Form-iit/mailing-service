@@ -6,6 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class QueueConfig {
-    private String type;
-    private String name;
+  private String type;
+  private String name;
 }
