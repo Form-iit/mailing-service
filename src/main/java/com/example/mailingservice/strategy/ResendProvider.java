@@ -7,13 +7,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ResendProvider implements EmailProvider {
 
-    @Override
-    public void sendEmail(EmailRequest email) {
-        log.info("Sending email using resend");
-    }
+  @Override
+  public void sendEmail(EmailRequest email) {
+    log.info("Sending email using resend");
+  }
 
-    @Override
-    public String getProviderName() {
-        return "RESEND";
-    }
+  @Override
+  public String getProviderName() {
+    return "RESEND";
+  }
 }

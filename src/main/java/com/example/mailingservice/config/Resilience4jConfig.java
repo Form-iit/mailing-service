@@ -6,8 +6,8 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class Resilience4jConfig {
-    @Bean
-    public RetryRegistry retryRegistry() {
-        return RetryRegistry.ofDefaults();
-    }
+  @Bean
+  public RetryRegistry retryRegistry() {
+    return RetryRegistry.ofDefaults();
+  }
 }

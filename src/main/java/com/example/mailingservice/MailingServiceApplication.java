@@ -10,8 +10,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 @EnableRabbit
 public class MailingServiceApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(MailingServiceApplication.class, args);
-    }
-
+  public static void main(String[] args) {
+    SpringApplication.run(MailingServiceApplication.class, args);
+  }
 }

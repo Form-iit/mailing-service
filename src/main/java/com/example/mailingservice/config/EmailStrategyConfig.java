@@ -9,8 +9,8 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j
 public class EmailStrategyConfig {
 
-    @Bean("defaultEmailProviderType")
-    public EmailProviderType defaultEmailProviderType() {
-        return EmailProviderType.GMAIL;
-    }
+  @Bean("defaultEmailProviderType")
+  public EmailProviderType defaultEmailProviderType() {
+    return EmailProviderType.GMAIL;
+  }
 }
