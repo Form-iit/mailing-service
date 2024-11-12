@@ -3,18 +3,17 @@ name: CI pipeline
 on:
     push:
         branches:
-            - '**'
-            - '!main'
+            - main
     pull_request:
         branches:
             - main
         types:
-            - closed
+            - opened
+            - synchronize
 
 jobs:
 
     format:
-        if: github.ref != 'refs/heads/main' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout repository
@@ -67,8 +66,8 @@ jobs:
                 run: mvn package -DskipTests
 
             -   name: Upload build artifact
-                # Only upload artifact when PR is merged to main
-                if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+                # Only upload artifact when PR is merged to main (a PR merge is considered a push)
+                if: github.event_name == 'push' && github.ref == 'refs/heads/main'
                 uses: actions/upload-artifact@v4
                 with:
                     name: mailing-artifact
