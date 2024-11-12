@@ -14,7 +14,7 @@ on:
 jobs:
 
     format:
-        if: github.ref != 'refs/heads/main' || (github.event.pull_request.merged == true && github.ref == 'refs/heads/main')
+        if: github.ref != 'refs/heads/main' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout repository
@@ -67,8 +67,10 @@ jobs:
                 run: mvn package -DskipTests
 
             -   name: Upload build artifact
-                if: github.ref == 'refs/heads/main' && github.event.pull_request.merged == true #builds the artifact only for the main branch merged pull requests
+                # Only upload artifact when PR is merged to main
+                if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
                 uses: actions/upload-artifact@v4
                 with:
                     name: mailing-artifact
                     path: target/*.jar
+                    retention-days: 1
