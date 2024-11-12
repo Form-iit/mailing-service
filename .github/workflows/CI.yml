@@ -1,0 +1,74 @@
+name: CI pipeline
+
+on:
+    push:
+        branches:
+            - '**'
+            - '!main'
+    pull_request:
+        branches:
+            - main
+        types:
+            - closed
+
+jobs:
+
+    format:
+        if: github.ref != 'refs/heads/main' || (github.event.pull_request.merged == true && github.ref == 'refs/heads/main')
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v4
+
+            -   name: Setup JDK 17
+                uses: actions/setup-java@v4
+                with:
+                    java-version: 17
+                    distribution: "corretto"
+                    cache: maven
+
+            -   name: Check code formatting
+                run: mvn spotless:check
+
+    test:
+        needs: format
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v4
+
+            -   name: Setup JDK 17
+                uses: actions/setup-java@v4
+                with:
+                    java-version: 17
+                    distribution: "corretto"
+                    cache: maven
+
+            -   name: Install dependencies
+                run: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+            -   name: Run unit tests
+                run: mvn test
+
+    build:
+        needs: test
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v4
+
+            -   name: Set up JDK 17
+                uses: actions/setup-java@v4
+                with:
+                    java-version: "17"
+                    distribution: "corretto"
+                    cache: maven
+
+            -   name: Build with Maven
+                run: mvn package -DskipTests
+
+            -   name: Upload build artifact
+                if: github.ref == 'refs/heads/main' && github.event.pull_request.merged == true #builds the artifact only for the main branch merged pull requests
+                uses: actions/upload-artifact@v4
+                with:
+                    name: mailing-artifact
+                    path: target/*.jar

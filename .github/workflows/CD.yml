@@ -1,0 +1,50 @@
+name: CD pipeline
+
+on:
+    workflow_run:
+        workflows:
+            - CI pipeline
+        types:
+            - completed
+
+jobs:
+    deploy:
+        if: github.event.workflow_run.conclusion == 'success' && github.ref == 'refs/heads/main'
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v4
+
+            -   name: Download build artifact
+                uses: actions/download-artifact@v4
+                with:
+                    name: mailing-artifact
+
+            -   name: Create target directory
+                run: mkdir -p target
+
+            -   name: Move JAR to target directory
+                run: mv *.jar target/
+
+            -   name: Set up QEMU
+                uses: docker/setup-qemu-action@v3
+
+            -   name: Set up docker buildX
+                uses: docker/setup-buildx-action@v3
+
+            -   name: Log in to docker hub
+                uses: docker/login-action@v3
+                with:
+                    username: ${{ secrets.DOCKER_USERNAME }}
+                    password: ${{ secrets.DOCKER_PASSWORD }}
+
+            -   name: Build and push Docker image
+                uses: docker/build-push-action@v6
+                with:
+                    context: .
+                    file: ./Dockerfile
+                    push: true
+                    tags: ${{ secrets.DOCKER_USERNAME }}/mailing-service:latest
+
+            -   name: Cleanup target directory
+                run: rm -rf target/
