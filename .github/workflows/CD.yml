@@ -18,11 +18,11 @@ jobs:
                 uses: actions/checkout@v4
 
             -   name: Download build artifact
-                uses: actions/download-artifact@v4
+                uses: dawidd6/action-download-artifact@v6
                 with:
                     name: mailing-artifact
-                    github-token: ${{ secrets.GITHUB_TOKEN }} #This is needed because we're downloading an artifact from a different workflow.The GITHUB_TOKEN is automatically provided by GitHub Actions. Without this token, the action wouldn't have permission to access artifacts from other workflows
-                    run-id: ${{ github.event.workflow_run.id }} #contains the ID of the CI workflow run that triggered this CD workflow. Without this, the action wouldn't know which specific workflow run to download the artifact from. If you had multiple CI runs, this ensures you get the artifact from the correct run
+                    github_token: ${{ secrets.GITHUB_TOKEN }} #This is needed because we're downloading an artifact from a different workflow.The GITHUB_TOKEN is automatically provided by GitHub Actions. Without this token, the action wouldn't have permission to access artifacts from other workflows
+                    run_id: ${{ github.event.workflow_run.id }} #contains the ID of the CI workflow run that triggered this CD workflow. Without this, the action wouldn't know which specific workflow run to download the artifact from. If you had multiple CI runs, this ensures you get the artifact from the correct run
 
             -   name: Create target directory
                 run: mkdir -p target
