@@ -9,12 +9,6 @@ on:
 
 jobs:
 
-    log-event:
-        runs-on: ubuntu-latest
-        steps:
-            -   name: Log GitHub Context
-                run: echo "${{ toJson(github) }}"
-
     deploy:
         if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request'
         runs-on: ubuntu-latest
