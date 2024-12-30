@@ -1,6 +1,9 @@
-FROM openjdk:17-jdk-slim
+FROM amazoncorretto:17-alpine
+# Set working directory
 WORKDIR /app
+# Copy the application JAR file
 COPY target/*.jar app.jar
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
-EXPOSE 8081
+# Install curl and clean up to reduce image size
+RUN apk --no-cache add curl
+# Set the entrypoint to run the Java application
 ENTRYPOINT ["java", "-jar", "app.jar"]

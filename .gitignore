@@ -46,6 +46,10 @@ build/
 .env.local.docker
 .env.dev.docker
 
+# Ignore local docker compose files
+docker-compose.local.yml
+docker-compose.dev.yml
+
 # Ignore log files
 *.log
 
