@@ -3,6 +3,7 @@ package com.example.mailingservice.strategy;
 import com.example.mailingservice.dto.EmailRequest;
 import com.example.mailingservice.exceptions.EmailSendException;
 import com.example.mailingservice.provider.EmailProvider;
+import com.example.mailingservice.utils.EmailFeedbackSender;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryRegistry;
 import io.github.resilience4j.retry.event.RetryOnRetryEvent;
@@ -25,7 +26,8 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class GmailProvider implements EmailProvider {
-  private final JavaMailSender javaMailSender;
+  private JavaMailSender javaMailSender;
+  private EmailFeedbackSender emailFeedback;
 
   @Value("${spring.mail.username}")
   private String SENDER;
@@ -33,8 +35,12 @@ public class GmailProvider implements EmailProvider {
   @Value("${resilience4j.retry.instances.emailService.maxAttempts}")
   private int MAX_ATTEMPTS;
 
-  public GmailProvider(JavaMailSender javaMailSender, RetryRegistry retryRegistry) {
+  public GmailProvider(
+      JavaMailSender javaMailSender,
+      RetryRegistry retryRegistry,
+      EmailFeedbackSender emailFeedback) {
     this.javaMailSender = javaMailSender;
+    this.emailFeedback = emailFeedback;
     Retry retry =
         retryRegistry.retry("emailService"); // ? gets the retry identifier from the properties
 
@@ -75,6 +81,8 @@ public class GmailProvider implements EmailProvider {
       name = "emailService",
       fallbackMethod = "handleRetryFailure")
   public void sendEmail(@Valid EmailRequest details) throws EmailSendException {
+    String correlationId = details.getCorrelationId();
+    log.info("(service): Sending email with correlation ID: {}", correlationId);
     try {
       MimeMessage mimeMessage = javaMailSender.createMimeMessage();
       MimeMessageHelper mail = new MimeMessageHelper(mimeMessage, true, "UTF-8");
@@ -94,15 +102,14 @@ public class GmailProvider implements EmailProvider {
 
       try {
         javaMailSender.send(mimeMessage);
+        emailFeedback.send(correlationId, "success", null);
       } catch (MailSendException ex) {
         log.error("Failed to send email: {}", ex.getMessage());
         throw new EmailSendException("Failed to send email", ex);
       }
-    } catch (MessagingException ex) {
+    } catch (MessagingException | IOException ex) {
       log.error("Exception while preparing the mail: {}", ex.getMessage());
       throw new EmailSendException("Failed to prepare email", ex);
-    } catch (IOException e) {
-      throw new EmailSendException("Failed to load resources", e);
     }
   }
 
@@ -113,6 +120,7 @@ public class GmailProvider implements EmailProvider {
 
   public void handleRetryFailure(EmailRequest details, Throwable ex) throws EmailSendException {
     log.error("All retry attempts failed. Unable to send email to {}", details.getTo());
+    emailFeedback.send(details.getCorrelationId(), "failure", ex.getMessage());
     throw new EmailSendException(
         String.format("Failed to send email to %s after 3 attempts using Gmail", details.getTo()),
         ex);

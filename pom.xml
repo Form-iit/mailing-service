@@ -121,13 +121,14 @@
                             <reflowLongStrings>true</reflowLongStrings>
                             <formatJavadoc>false</formatJavadoc>
                         </googleJavaFormat>
+                        <lineEndings>UNIX</lineEndings>
                     </java>
                     <yaml>
                         <includes>
                             <include>**/*.yml</include>
                             <include>**/*.yaml</include>
                         </includes>
-                        <!-- define the steps to apply to those files -->
+                        <lineEndings>UNIX</lineEndings>
                         <trimTrailingWhitespace/>
                         <indent>
                             <spaces>true</spaces>

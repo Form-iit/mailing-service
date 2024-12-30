@@ -10,6 +10,8 @@ import lombok.*;
 @Data
 @EqualsAndHashCode
 public class EmailRequest {
+  private String correlationId;
+
   @NotEmpty(message = "Email recipient can't be empty")
   @Email(
       regexp = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$",

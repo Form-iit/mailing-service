@@ -2,10 +2,12 @@ package com.example.mailingservice.strategy;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import com.example.mailingservice.dto.EmailRequest;
 import com.example.mailingservice.exceptions.EmailSendException;
+import com.example.mailingservice.utils.EmailFeedbackSender;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryRegistry;
 import jakarta.mail.MessagingException;
@@ -27,6 +29,8 @@ public class GmailProviderTest {
   @Mock private JavaMailSender javaMailSender;
 
   @Mock private RetryRegistry retryRegistry;
+
+  @Mock private EmailFeedbackSender emailFeedback;
 
   @Mock private Retry retry;
 
@@ -54,7 +58,7 @@ public class GmailProviderTest {
     // Mock MimeMessage creation
     when(javaMailSender.createMimeMessage()).thenReturn(mimeMessage);
 
-    gmailProvider = spy(new GmailProvider(javaMailSender, retryRegistry));
+    gmailProvider = new GmailProvider(javaMailSender, retryRegistry, emailFeedback);
 
     // Mock SENDER field using reflection
     try {
